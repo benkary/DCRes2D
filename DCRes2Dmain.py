@@ -12,42 +12,49 @@ import scipy.sparse as ssp
 nx = 21.
 ny = 11.
 
+# def some functions to be used on each dimension
+
+n2c = lambda(n): n[0:-1] + 0.5*np.diff(n)
+e = lambda(n): np.ones([1, n-1])
+
+def dnc(n):
+    dnc = np.diff(n); 
+    dnc = np.insert(dnc, 0, dnc[0]/2.);  # correct endpoints for a half step between
+    dnc = np.append(dnc, dnc[-1]/2.)     # first/last cell center and the boundary
+    return(dnc)
+    
+def neumann_diags(m,n):
+    diags = np.vstack([-e(n)*1./m[1:], e(n)*1./m[:-1]])
+    diags[1, 0] = diags[1, 0]*2; diags[0, -1] = diags[0, -1]*2
+    return(diags)
+
 # Create field and flux position vectors
 x   = np.linspace(0,1,nx);
-xc  = x[0:nx-1] + 0.5*np.diff(x)
+xc  = n2c(x)
 dx  = np.diff(x)
-dxc = np.diff(xc); 
-dxc = np.insert(dxc, 0, dxc[0]/2.);  # correct endpoints for a half step between
-dxc = np.append(dxc, dxc[-1]/2.)     # first/last cell center and the boundary
+dxc = dnc(xc)
 
 
-y  = np.linspace(0,1,ny);
-yc = y[0:ny-1] + 0.5*np.diff(y)
-dy = np.diff(y)
-dyc = np.diff(yc) 
-dyc = np.insert(dyc, 0, dyc[0]/2.); 
-dyc = np.append(dyc, dyc[-1]/2.)
+y   = np.linspace(0,1,ny);
+yc  = n2c(y)
+dy  = np.diff(y)
+dyc = dnc(yc)
 
 
 # Unused so far
 X  , Y  = np.meshgrid(x, y)
 Xc , Yc = np.meshgrid(xc, yc)
 
-ex  = np.ones([1, nx-1])
-ey  = np.ones([1, ny-1])
+ex = np.ones([1, nx-1])
+ey = np.ones([1, ny-1])
 
-diagsx = np.vstack([-ex*1./dxc[1:], ex*1./dxc[:-1]])
-diagsx[1, 0] = diagsx[1, 0]*2; diagsx[0, -1] = diagsx[0, -1]*2
+diagsx = neumann_diags(dxc,nx)
+diagsy = neumann_diags(dyc,ny)
 
-diagsy = np.vstack([-ey*1./dyc[1:], ey*1./dyc[:-1]])
-diagsy[1, 0] = diagsy[1, 0]*2; diagsy[0, -1] = diagsy[0, -1]*2
-
-
-
-Dc2nx = ssp.spdiags(diagsx,[-1,0],nx,nx-1); LookatDc2nx = Dc2nx.todense()
-Dc2ny = ssp.spdiags(diagsy,[-1,0],ny,ny-1); LookatDc2ny = Dc2ny.todense()
-Dn2cx = ssp.spdiags(np.vstack([-ex, ex]),[0,1],nx-1,nx); LookatDn2cx = Dn2cx.todense()
-Dn2cy = ssp.spdiags(np.vstack([-ey, ey]),[0,1],ny-1,ny); LookatDn2cy = Dn2cy.todense()
+Dc2nx = ssp.spdiags(diagsx,[-1,0],nx,nx-1);
+Dc2ny = ssp.spdiags(diagsy,[-1,0],ny,ny-1);
+Dn2cx = ssp.spdiags(np.vstack([-e(nx), e(nx)]),[0,1],nx-1,nx);
+Dn2cy = ssp.spdiags(np.vstack([-e(ny), e(ny)]),[0,1],ny-1,ny);
 
 Icy = ssp.eye(ny,ny-1)
 Icx = ssp.eye(nx,nx-1)
@@ -62,9 +69,11 @@ Gnx = ssp.kron(Inx,Dn2cy)
 Gny = ssp.kron(Dn2cx,Iny)
 
 
-GRAD = ssp.vstack([Gcx, Gcy]); LookatGRAD = GRAD.todense()
-DIV  = ssp.vstack([Gnx, Gny]); LookatDIV  = DIV.todense()
+GRAD = ssp.vstack([Gcx, Gcy]);
+DIV  = ssp.vstack([Gnx, Gny]);
 
+# Some code to check that the GRAD, DIV operators work properly
+#
 Sigma = np.zeros(np.shape(Xc))
 Sigma[5:7, 8:14] = 1.
 Sigma = np.ravel(Sigma, order='F'); Sigma = Sigma.T
