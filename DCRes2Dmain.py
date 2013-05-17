@@ -65,10 +65,10 @@ Gny = ssp.kron(Dn2cx,Iny)
 GRAD = ssp.vstack([Gcx, Gcy]); LookatGRAD = GRAD.todense()
 DIV  = ssp.vstack([Gnx, Gny]); LookatDIV  = DIV.todense()
 
-Sigma = np.zeros([ny-1, nx-1])
+Sigma = np.zeros(np.shape(Xc))
 Sigma[5:7, 8:14] = 1.
-Sigma = np.ravel(Sigma, order='c'); Sigma = Sigma.T
+Sigma = np.ravel(Sigma, order='F'); Sigma = Sigma.T
 
 GRADsig = GRAD * Sigma
-GRADsigx = np.reshape(GRADsig[0:nx*ny],np.shape(X))
-GRADsigy = np.reshape(GRADsig[nx*ny-1:-1],np.shape(Y))
+GRADsigx = np.reshape(GRADsig[0:nx*ny], np.shape(X), order='F')
+GRADsigy = np.reshape(GRADsig[nx*ny-1:-1], np.shape(Y), order='F')
