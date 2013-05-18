@@ -45,14 +45,8 @@ dyc = dnc(yc)
 X  , Y  = np.meshgrid(x, y)
 Xc , Yc = np.meshgrid(xc, yc)
 
-ex = np.ones([1, nx-1])
-ey = np.ones([1, ny-1])
-
-diagsx = neumann_diags(dxc,nx)
-diagsy = neumann_diags(dyc,ny)
-
-Dc2nx = ssp.spdiags(diagsx,[-1,0],nx,nx-1);
-Dc2ny = ssp.spdiags(diagsy,[-1,0],ny,ny-1);
+Dc2nx = ssp.spdiags(neumann_diags(dxc,nx),[-1,0],nx,nx-1);
+Dc2ny = ssp.spdiags(neumann_diags(dyc,ny),[-1,0],ny,ny-1);
 Dn2cx = ssp.spdiags(np.vstack([-e(nx), e(nx)]),[0,1],nx-1,nx);
 Dn2cy = ssp.spdiags(np.vstack([-e(ny), e(ny)]),[0,1],ny-1,ny);
 
@@ -70,7 +64,7 @@ Gny = ssp.kron(Dn2cx,Iny)
 
 
 GRAD = ssp.vstack([Gcx, Gcy]);
-DIV  = ssp.vstack([Gnx, Gny]);
+DIV  = ssp.hstack([Gnx, Gny]);
 
 # Some code to check that the GRAD, DIV operators work properly
 #
@@ -81,3 +75,6 @@ Sigma = np.ravel(Sigma, order='F'); Sigma = Sigma.T
 GRADsig = GRAD * Sigma
 GRADsigx = np.reshape(GRADsig[0:nx*ny], np.shape(X), order='F')
 GRADsigy = np.reshape(GRADsig[nx*ny-1:-1], np.shape(Y), order='F')
+
+LAPsig = DIV * GRADsig
+LAPsig = np.reshape(LAPsig, np.shape(Xc), order='F')
