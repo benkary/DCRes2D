@@ -67,14 +67,32 @@ GRAD = ssp.vstack([Gcx, Gcy]);
 DIV  = ssp.hstack([Gnx, Gny]);
 
 # Some code to check that the GRAD, DIV operators work properly
-#
-Sigma = np.zeros(np.shape(Xc))
-Sigma[5:7, 8:14] = 1.
+
+Sigma = np.ones(np.shape(Xc))
+Sigma[5:8, 8:14] = 1000.
 Sigma = np.ravel(Sigma, order='F'); Sigma = Sigma.T
 
-GRADsig = GRAD * Sigma
-GRADsigx = np.reshape(GRADsig[0:nx*ny], np.shape(X), order='F')
-GRADsigy = np.reshape(GRADsig[nx*ny-1:-1], np.shape(Y), order='F')
+#GRADsig = GRAD * Sigma
+#GRADsigx = np.reshape(GRADsig[0:nx*ny], np.shape(X), order='F')
+#GRADsigy = np.reshape(GRADsig[nx*ny-1:-1], np.shape(Y), order='F')
 
-LAPsig = DIV * GRADsig
-LAPsig = np.reshape(LAPsig, np.shape(Xc), order='F')
+#LAPsig = DIV * GRADsig
+#LAPsig = np.reshape(LAPsig, np.shape(Xc), order='F')
+
+
+diagsx = np.vstack([e(nx), e(nx)])
+diagsx[1, 0] = diagsx[1, 0]*2; diagsx[0, -1] = diagsx[0, -1]*2
+
+diagsy = np.vstack([e(ny), e(ny)])
+diagsy[1, 0] = diagsy[1, 0]*2; diagsy[0, -1] = diagsy[0, -1]*2
+
+
+Ac2fx = ssp.spdiags(diagsx,[-1, 0],nx,nx-1)
+Ac2fy = ssp.spdiags(diagsy,[-1, 0],ny,ny-1)
+
+ll = ssp.kron(ssp.eye(nx-1,nx-1), Ac2fy); ll = ll.todense()
+mm = ssp.kron(Ac2fx, ssp.eye(ny,ny)); mm = mm.todense()
+nn = mm * ll
+
+AVsig = 1. / (1./2 * np.dot(nn,(1./Sigma)))
+AVsig = np.reshape(AVsig, np.shape(X), order='F')
