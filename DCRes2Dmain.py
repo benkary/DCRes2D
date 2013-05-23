@@ -6,6 +6,7 @@ Created on Sat May 11 17:43:51 2013
 """
 
 import numpy as np
+import numpy.linalg as nl
 import scipy.sparse as ssp
 import ModOps as mo
 
@@ -119,5 +120,20 @@ mm = 1./(np.dot(AVx.todense(),1./Sigma)); mm = np.ravel(mm, order='F')
 
 diagAVsig = ssp.spdiags(np.append(ll,mm),0,longdim,longdim)
 
-Aofu = np.dot(DIV, np.dot(diagAVsig, GRAD))
+DX, DY = np.meshgrid(dx, dy)
+h = DX * DY; h = np.ravel(h, order='F')
+hmat = np.tile(h, (nxc*nyc, 1))
+
+
+Aofu = np.dot(DIV, np.dot(diagAVsig, GRAD)) + hmat
+
+q = np.zeros(nxc*nyc); q[5] = 1000
+
+y = nl.solve(Aofu,q)
+
+y = np.reshape(y,(nyc,nxc))
+
+
+
+
 
