@@ -11,8 +11,8 @@ import scipy.sparse as ssp
 import ModOps as mo
 
 # Set up a mesh
-nx = 51.  ; nxc = nx - 1
-ny = 31.  ; nyc = ny - 1
+nx = 21.  ; nxc = nx - 1
+ny = 11.  ; nyc = ny - 1
 
 n2c = lambda(n): n[0:-1] + 0.5 * np.diff(n)
 e   = lambda(n): np.ones([1, n])
@@ -87,7 +87,7 @@ DIV  = mo.getDIV  (nx , ny)
 longdim = ny*nxc + nyc*nx
 
 Sigma = 1./3000 * np.ones((nyc,nxc))
-Sigma[13:18, 20:30] = 1./40000.
+Sigma[5:8, 8:14] = 1./40000.
 Sigma = np.ravel(Sigma, order='F'); Sigma = Sigma.T
 
 GRADsig = GRAD * Sigma
@@ -136,7 +136,7 @@ hmat = np.tile(h, (nxc*nyc, 1))
 
 Aofu = np.dot(DIV, np.dot(diagAVsig, GRAD)) + hmat
 
-q = np.zeros(nxc*nyc); q[15] = 5
+q = np.zeros((nyc, nxc)); q[3] = 5; q = np.ravel(q, order='F')
 V = nl.solve(Aofu,q)
 
 V = np.reshape(V,(nyc,nxc), order='F')
