@@ -86,8 +86,8 @@ DIV  = mo.getDIV  (nx , ny)
 # Some code to check that the GRAD, DIV operators work properly
 longdim = ny*nxc + nyc*nx
 
-Sigma = 1./3000 * np.ones((nyc,nxc))
-Sigma[5:8, 8:14] = 1./40000.
+Sigma = 1./40000* np.ones((nyc,nxc))
+Sigma[7:10, 14:18] = 1./3000.
 Sigma = np.ravel(Sigma, order='F'); Sigma = Sigma.T
 
 GRADsig = GRAD * Sigma
@@ -125,6 +125,8 @@ mm = 1./(np.dot(AVx.todense(),1./Sigma)); mm = np.ravel(mm, order='F')
 
 #mm = np.reshape(mm, [nyc, nx], order='F')
 
+#diagAVsig = ssp.block_diag(ll,mm)
+
 diagAVsig = ssp.spdiags(np.append(ll,mm),0,longdim,longdim)
 
 DX, DY = np.meshgrid(dx, dy)
@@ -134,13 +136,12 @@ hmat = np.tile(h, (nxc*nyc, 1))
 #hmat = mo.get_hmat(dx,dy)
 
 
-Aofu = np.dot(DIV, np.dot(diagAVsig, GRAD)) + hmat
+Aofu = np.dot(DIV.todense(), np.dot(diagAVsig, GRAD).todense()) + hmat
 
-q = np.zeros((nyc, nxc)); q[3] = 5; q = np.ravel(q, order='F')
+q = np.zeros((nyc, nxc)); q[0,1] = 5; q = np.ravel(q, order='F')
 V = nl.solve(Aofu,q)
 
 V = np.reshape(V,(nyc,nxc), order='F')
-
 
 
 
