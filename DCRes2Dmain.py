@@ -93,13 +93,40 @@ G = (DIV * ssp.diags(GRAD * np.ravel(V, order='F'), 0) * diagAVsig**2 *
 #  this
 ##
       
-xdat = x[13:21]
+xdat = xc[13:20]
 ydat = np.zeros((np.shape(xdat)))
 
 xc  = mo.n2c(x)
 yc  = mo.n2c(y)
 Xc, Yc = meshgrid(xc,yc)
-Q = (si.griddata((np.ravel(Xc, order='F'), np.ravel(Yc, order='F')), 
-    np.eye(nyc*nxc), (xdat,ydat), method='linear', fill_value='0'))
-    
-Vdat = Q * np.ravel(V, order='F')
+#Q = (si.griddata((np.ravel(Xc, order='F'), np.ravel(Yc, order='F')), 
+#    np.eye(nyc*nxc), (xdat,ydat), method='linear', fill_value='0'))
+
+#interpx = np.interp(xdat,xc,np.ones(np.shape(xc)))
+#blah = interpx * np.ravel(V, order='F')
+   
+   
+#Vdat = Q * np.ravel(V, order='F')
+
+diagsQ, a, Q = mo.get_Q(xdat, xc)
+
+#n = 0
+#ll = np.zeros(np.shape(xdat))
+#mm = np.zeros(np.shape(xdat))
+#
+#for i in range(0, np.size(xc)):
+#   
+#   if xc[i] > xdat[n]:
+#      
+#      xdif  = xc[i] - xdat[n]
+#      ll[n] = xdif / np.diff(xc)[i - 1]
+#      mm[n] = 1 - ll[n]
+#      n = n + 1
+#   
+#   elif xc[i] == xdat[n]:
+#       
+#      ll[n] = 1
+#      mm[n] = 0
+#      n = n + 1
+      
+     
