@@ -4,7 +4,7 @@ Created on Thu Jun 13 06:13:51 2013
 
 @author: ben
 """
-
+import ModOps as mo
 
 
 def get_Q(xint, x):
@@ -27,4 +27,4 @@ def get_Q(xint, x):
     
     return QxOp, QyOp
     
-Qx, Qy = mo.get_Q(np.array([xdat, ydat]), np.array([xc, yc]))
+Qx, Qy = get_Q(np.array([xdat, ydat]), np.array([xc, yc]))
