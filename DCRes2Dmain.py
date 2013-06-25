@@ -14,6 +14,7 @@ import pylab as p
 
 import ModOps as mo
 
+#comments
 # Set up a mesh
 nx = 21.  ; nxc = nx - 1
 ny = 11.  ; nyc = ny - 1
